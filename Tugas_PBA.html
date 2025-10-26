@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Belajar Nihongo - Hobi</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #9b8cff, #b38bff);
+        color: #fff;
+      }
+      nav {
+        display: flex;
+        justify-content: center;
+        background: #7a5cff;
+        padding: 10px;
+      }
+      nav a {
+        color: #fff;
+        margin: 0 15px;
+        text-decoration: none;
+        font-weight: bold;
+      }
+      nav a.active {
+        background: #a48bff;
+        padding: 5px 10px;
+        border-radius: 8px;
+      }
+      section {
+        display: none;
+        padding: 40px;
+        text-align: center;
+      }
+      section.active {
+        display: block;
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px auto;
+        max-width: 600px;
+      }
+      .hobby-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+      .hobby-item {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 10px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+      .hobby-item:hover {
+        background: rgba(255, 255, 255, 0.4);
+      }
+      .jp {
+        font-size: 1.2em;
+        color: #fff;
+      }
+      footer {
+        text-align: center;
+        padding: 20px;
+        color: #eee;
+      }
+      button {
+        background: #7a5cff;
+        color: #fff;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 8px;
+        font-weight: bold;
+      }
+      button:hover {
+        background: #9a7cff;
+      }
+      select {
+        padding: 8px;
+        border-radius: 8px;
+        border: none;
+      }
+      .question {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 15px;
+        border-radius: 10px;
+        margin: 10px auto;
+        max-width: 600px;
+        text-align: left;
+      }
+      label.correct {
+        background: rgba(144, 238, 144, 0.3); /* hijau */
+        padding: 3px 6px;
+        border-radius: 5px;
+      }
+      label.wrong {
+        background: rgba(255, 99, 71, 0.3); /* merah */
+        padding: 3px 6px;
+        border-radius: 5px;
+      }
+      .feedback {
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="#home" class="active">🏠 Home</a>
+      <a href="#belajar">📘 Belajar</a>
+      <a href="#kuis">❓ Kuis</a>
+      <a href="#tentang">ℹ️ Tentang</a>
+    </nav>
+
+    <!-- HOME -->
+    <section id="home" class="active">
+      <h1>🌸 Daftar Hobi dalam Bahasa Jepang</h1>
+      <div class="hobby-grid" id="home-grid"></div>
+    </section>
+
+    <!-- BELAJAR -->
+    <section id="belajar">
+      <h1>📖 Belajar Pola Kalimat</h1>
+      <div class="card">
+        <p>Pilih hobi yang ingin dipelajari:</p>
+        <select id="hobiSelect"></select>
+        <div id="kalimat" style="margin-top: 20px"></div>
+        <!-- <button id="ucapkan">🔊 Ucapkan</button> -->
+      </div>
+    </section>
+
+    <!-- KUIS -->
+    <section id="kuis">
+      <h1>🧩 Kuis Bahasa Jepang</h1>
+      <div id="quiz-container"></div>
+      <div id="quiz-result" style="margin-top: 20px; font-weight: bold"></div>
+    </section>
+
+    <!-- TENTANG -->
+    <section id="tentang">
+      <h1>ℹ️ Tentang</h1>
+      <p>
+        Website ini dibuat untuk membantu pemula belajar kosakata dan pola
+        kalimat sederhana dalam Bahasa Jepang 🎌.
+      </p>
+    </section>
+
+    <footer>© 2025 — Belajar Nihongo</footer>
+
+    <script>
+      const HOBBIES = [
+        { emoji: "🎮", jp: "ゲーム", romaji: "gēmu", id: "bermain game" },
+        { emoji: "🎬", jp: "えいが", romaji: "eiga", id: "menonton film" },
+        { emoji: "📚", jp: "どくしょ", romaji: "dokusho", id: "membaca buku" },
+        {
+          emoji: "🎧",
+          jp: "おんがく",
+          romaji: "ongaku",
+          id: "mendengarkan musik",
+        },
+        { emoji: "🍳", jp: "りょうり", romaji: "ryouri", id: "memasak" },
+        { emoji: "🚴", jp: "うんどう", romaji: "undou", id: "olahraga" },
+        { emoji: "📸", jp: "しゃしん", romaji: "shashin", id: "fotografi" },
+        { emoji: "🧳", jp: "りょこう", romaji: "ryokou", id: "bepergian" },
+        { emoji: "🎨", jp: "えをかく", romaji: "e o kaku", id: "menggambar" },
+        {
+          emoji: "🌸",
+          jp: "ガーデニング",
+          romaji: "gādeningu",
+          id: "berkebun",
+        },
+        { emoji: "🎤", jp: "カラオケ", romaji: "karaoke", id: "bernyanyi" },
+      ];
+
+      const POLA = {
+        "bermain game": "わたしのしゅみは　ゲームをすることです。",
+        "menonton film": "わたしのしゅみは　えいがをみることです。",
+        "membaca buku": "わたしのしゅみは　ほんをよむことです。",
+        "mendengarkan musik": "わたしのしゅみは　おんがくをきくことです。",
+        memasak: "わたしのしゅみは　りょうりをすることです。",
+        olahraga: "わたしのしゅみは　うんどうをすることです。",
+        fotografi: "わたしのしゅみは　しゃしんをとることです。",
+        bepergian: "わたしのしゅみは　りょこうをすることです。",
+        menggambar: "わたしのしゅみは　えをかくことです。",
+        berkebun: "わたしのしゅみは　ガーデニングをすることです。",
+        bernyanyi: "わたしのしゅみは　カラオケをうたうことです。",
+      };
+
+      // ==== NAVIGATION ====
+      document.querySelectorAll("nav a").forEach((a) => {
+        a.onclick = (e) => {
+          e.preventDefault();
+          document
+            .querySelectorAll("nav a")
+            .forEach((x) => x.classList.remove("active"));
+          a.classList.add("active");
+          document
+            .querySelectorAll("section")
+            .forEach((s) => s.classList.remove("active"));
+          document
+            .querySelector(a.getAttribute("href"))
+            .classList.add("active");
+        };
+      });
+
+      // ==== HOME ====
+      const homeGrid = document.getElementById("home-grid");
+      homeGrid.innerHTML = HOBBIES.map(
+        (h) => `
+  <div class="hobby-item">
+    <div>${h.emoji}</div>
+    <div class="jp">${h.jp}</div>
+    <div>${h.romaji}</div>
+    <div style="font-size:0.9em;">(${h.id})</div>
+  </div>
+`
+      ).join("");
+
+      // ==== BELAJAR ====
+      const select = document.getElementById("hobiSelect");
+      select.innerHTML = HOBBIES.map(
+        (h) => `<option value="${h.id}">${h.emoji} ${h.id}</option>`
+      ).join("");
+      const kalimatDiv = document.getElementById("kalimat");
+      function updateKalimat() {
+        const val = select.value;
+        kalimatDiv.innerHTML = `
+    <p style="font-size:1.5em;">${POLA[val] || "Belum ada kalimat."}</p>
+    <p><em>Watashi no shumi wa ${
+      HOBBIES.find((h) => h.id === val).romaji
+    } o suru koto desu.</em></p>
+    <p>Hobi saya adalah ${val}.</p>
+  `;
+      }
+      select.onchange = updateKalimat;
+      updateKalimat();
+      document.getElementById("ucapkan").onclick = () => {
+        const text = POLA[select.value];
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = "ja-JP";
+        speechSynthesis.speak(msg);
+      };
+
+      // ==== KUIS ====
+      const SOAL = [
+        {
+          q: "Apa arti ゲームをすることです？",
+          a: ["Bermain game", "Menonton film", "Membaca buku"],
+          c: 0,
+        },
+        {
+          q: "Apa arti えいがをみることです？",
+          a: ["Menonton film", "Memasak", "Olahraga"],
+          c: 0,
+        },
+        {
+          q: "わたしのしゅみは　ほんをよむことです。 artinya?",
+          a: [
+            "Saya suka membaca buku",
+            "Saya suka bermain game",
+            "Saya suka bepergian",
+          ],
+          c: 0,
+        },
+        {
+          q: "Apa arti おんがくをきくことです？",
+          a: ["Mendengarkan musik", "Menonton film", "Memasak"],
+          c: 0,
+        },
+        {
+          q: "Apa arti りょうりをすることです？",
+          a: ["Memasak", "Membaca buku", "Olahraga"],
+          c: 0,
+        },
+        {
+          q: "Apa arti しゃしんをとることです？",
+          a: ["Fotografi", "Berkebun", "Bernyanyi"],
+          c: 0,
+        },
+        {
+          q: "Apa arti うんどうをすることです？",
+          a: ["Olahraga", "Bepergian", "Menggambar"],
+          c: 0,
+        },
+        {
+          q: "Apa arti りょこうをすることです？",
+          a: ["Bepergian", "Mendengarkan musik", "Memasak"],
+          c: 0,
+        },
+        {
+          q: "Apa arti カラオケをうたうことです？",
+          a: ["Bernyanyi", "Berkebun", "Olahraga"],
+          c: 0,
+        },
+        {
+          q: "Apa arti えをかくことです？",
+          a: ["Menggambar", "Menonton film", "Bermain game"],
+          c: 0,
+        },
+      ];
+
+      const quizContainer = document.getElementById("quiz-container");
+      let score = 0;
+      SOAL.forEach((s, i) => {
+        const div = document.createElement("div");
+        div.className = "question";
+        div.innerHTML =
+          `<p><b>${i + 1}. ${s.q}</b></p>` +
+          s.a
+            .map(
+              (ans, idx) =>
+                `<label><input type="radio" name="q${i}" value="${idx}"> ${ans}</label><br>`
+            )
+            .join("");
+        quizContainer.appendChild(div);
+      });
+
+      const btn = document.createElement("button");
+      btn.textContent = "Periksa Jawaban";
+      btn.onclick = () => {
+        score = 0;
+        SOAL.forEach((s, i) => {
+          const chosen = document.querySelector(`input[name=q${i}]:checked`);
+          const questionDiv = quizContainer.children[i];
+
+          // Reset style dulu
+          questionDiv.querySelectorAll("label").forEach((l) => {
+            l.classList.remove("correct", "wrong");
+          });
+
+          // Hapus feedback lama
+          const oldFeedback = questionDiv.querySelector(".feedback");
+          if (oldFeedback) oldFeedback.remove();
+
+          const feedback = document.createElement("p");
+          feedback.className = "feedback";
+          feedback.style.fontWeight = "bold";
+
+          if (chosen) {
+            if (parseInt(chosen.value) === s.c) {
+              score++;
+              feedback.textContent = "✅ Benar!";
+              feedback.style.color = "lightgreen";
+              questionDiv
+                .querySelectorAll("label")
+                [s.c].classList.add("correct");
+            } else {
+              feedback.textContent = `❌ Salah. Jawaban benar: ${s.a[s.c]}`;
+              feedback.style.color = "salmon";
+              questionDiv
+                .querySelectorAll("label")
+                [parseInt(chosen.value)].classList.add("wrong");
+              questionDiv
+                .querySelectorAll("label")
+                [s.c].classList.add("correct");
+            }
+          } else {
+            feedback.textContent = `❌ Belum memilih jawaban. Jawaban benar: ${
+              s.a[s.c]
+            }`;
+            feedback.style.color = "orange";
+            questionDiv.querySelectorAll("label")[s.c].classList.add("correct");
+          }
+          questionDiv.appendChild(feedback);
+        });
+        document.getElementById(
+          "quiz-result"
+        ).textContent = `Skor kamu: ${score} dari ${SOAL.length}`;
+      };
+      quizContainer.appendChild(btn);
+    </script>
+  </body>
+</html>
